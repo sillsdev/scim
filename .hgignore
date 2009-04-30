@@ -15,3 +15,6 @@ src/scim-launcher
 po/.intltool-merge-cache
 extras/panel/scim-panel-gtk
 extras/setup/scim-setup.desktop
+.cdtproject
+.project
+.settings/*

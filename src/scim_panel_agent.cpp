@@ -82,7 +82,8 @@ typedef Signal2<void, const String &, const AttributeList &>
 enum ClientType {
     UNKNOWN_CLIENT,
     FRONTEND_CLIENT,
-    HELPER_CLIENT
+    HELPER_CLIENT,
+    PANELCONTROL_CLIENT
 };
 
 struct ClientInfo {
@@ -998,16 +999,17 @@ private:
 
         uint32 key;
         String type = scim_socket_accept_connection (key,
-                                                     String ("Panel"), 
-                                                     String ("FrontEnd,Helper"),
+                                                     String ("Panel"),
+                                                     String ("FrontEnd,Helper,PanelController"),
                                                      client,
                                                      m_socket_timeout);
 
         if (type.length ()) {
             ClientInfo info;
             info.key = key;
-            info.type = ((type == "FrontEnd") ? FRONTEND_CLIENT : HELPER_CLIENT);
-
+			if		(type=="FrontEnd") 	{info.type = FRONTEND_CLIENT;}
+			else if	(type=="Helper") 	{info.type = HELPER_CLIENT;}
+			else 						{info.type = PANELCONTROL_CLIENT;}
             SCIM_DEBUG_MAIN (4) << "Add client to repository. Type=" << type << " key=" << key << "\n";
             lock ();
             m_client_repository [client.get_id ()] = info;
