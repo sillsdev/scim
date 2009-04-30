@@ -1,2 +1,17 @@
 syntax: glob
 */.deps
+*.o
+*.a
+*.la
+*.lai
+*.so*
+*.lo
+*/.libs
+src/scim
+src/scim-config-agent
+src/scim-helper-launcher
+src/scim-helper-manager
+src/scim-launcher
+po/.intltool-merge-cache
+extras/panel/scim-panel-gtk
+extras/setup/scim-setup.desktop
