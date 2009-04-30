@@ -112,7 +112,7 @@ make DESTDIR=${RPM_BUILD_ROOT} install
 mkdir -p ${RPM_BUILD_ROOT}/%{_libdir}/scim-1.0/{Config,FrontEnd,IMEngine,SetupUI,Helper,Filter}
 
 rm -f ${RPM_BUILD_ROOT}/%{_libdir}/scim-1.0/*/*/*.{a,la}
-rm -f ${RPM_BUILD_ROOT}//opt/gnome/lib/gtk-2.0/immodules/im-scim.{a,la}
+rm -f ${RPM_BUILD_ROOT}//usr/lib/gtk-2.0/immodules/im-scim.{a,la}
 
 # install user manual
 mkdir -p docs/dist/manual/zh_CN/figures/
@@ -222,7 +222,7 @@ gtk-query-immodules-2.0 > %{_sysconfdir}/gtk-2.0/gtk.immodules
 %{_libdir}/scim-1.0/*/Config/socket.so
 %endif
 %if %{build_gtk2_immodule}
-/opt/gnome/lib/gtk-2.0/immodules/im-scim.so
+/usr/lib/gtk-2.0/immodules/im-scim.so
 %endif
 
 %files devel

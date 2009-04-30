@@ -1,0 +1,14 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+localedir=${prefix}/share/locale
+datadir=${prefix}/share
+sysconfdir=${prefix}/etc
+
+Name: scim-x11utils
+Description: X11 Utilities for Smart Common Input Method platform
+Version: 1.4.7
+Requires: scim 
+Libs: -L${libdir} -lscim-x11utils-1.0  -lX11
+Cflags: -I${includedir}/scim-1.0 

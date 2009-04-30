@@ -1,0 +1,20 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+localedir=${prefix}/share/locale
+datadir=${prefix}/share
+sysconfdir=${prefix}/etc
+
+scimdatadir=${prefix}/share/scim
+icondir=${prefix}/share/scim/icons
+moduledir=${exec_prefix}/lib/scim-1.0/1.4.0
+
+scim_binary_version=1.4.0
+
+Name: SCIM
+Description: Smart Common Input Method platform
+Version: 1.4.7
+Requires: 
+Libs: -L${libdir} -lscim-1.0
+Cflags: -I${includedir}/scim-1.0
