@@ -981,9 +981,24 @@ private:
                 }
             }
             socket_transaction_end();
+        } else if (client_info.type == PANELCONTROL_CLIENT) {
+            SCIM_DEBUG_MAIN (1) << "PanelAgent::PanelController Client\n";
+            socket_transaction_start();
+            while (m_recv_trans.get_command (cmd)) {
+                if (cmd == SCIM_TRANS_CMD_PANEL_REQUEST_FACTORY_MENU) {    
+                    socket_panelcontroller_request_factory_menu ();
+                }
+            }
+            socket_transaction_end();
         }
     }
-
+	
+	void socket_panelcontroller_request_factory_menu	()
+	{
+		SCIM_DEBUG_MAIN (2) << "PanelAgent::socket_panelcontroller_request_factory_menu ()\n";
+		request_factory_menu();
+	}
+	
     void socket_exception_callback              (SocketServer   *server,
                                                  const Socket   &client)
     {
