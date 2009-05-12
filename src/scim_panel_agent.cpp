@@ -985,7 +985,7 @@ private:
             SCIM_DEBUG_MAIN (1) << "PanelAgent::PanelController Client\n";
             socket_transaction_start();
             while (m_recv_trans.get_command (cmd)) {
-                if (cmd == SCIM_TRANS_CMD_PANEL_REQUEST_FACTORY_MENU) {    
+                if (cmd == SCIM_TRANS_CMD_CONTROLLER_REQUEST_FACTORY_MENU) {    
                     socket_panelcontroller_request_factory_menu ();
                 }
             }
