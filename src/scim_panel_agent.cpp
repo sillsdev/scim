@@ -86,9 +86,11 @@ enum ClientType {
     PANELCONTROL_CLIENT
 };
 
+
 struct ClientInfo {
     uint32       key;
     ClientType   type;
+    int			 awaitedTransCommand;
 };
 
 struct HelperClientStub {
@@ -816,12 +818,42 @@ private:
             return;
  
         if (client_info.type == FRONTEND_CLIENT) {
+        	        	
             if (m_recv_trans.get_data (context)) {
                 SCIM_DEBUG_MAIN (1) << "PanelAgent::FrontEnd Client, context = " << context << "\n";
                 socket_transaction_start();
                 while (m_recv_trans.get_command (cmd)) {
                     SCIM_DEBUG_MAIN (3) << "PanelAgent::cmd = " << cmd << "\n";
-
+					
+					//TA
+					bool message_was_forwarded = false;
+        			for(ClientRepository::iterator it = m_client_repository.begin ();
+	        	    	it != m_client_repository.end (); ++it){
+	        				if(it->second.awaitedTransCommand == cmd){
+					            Socket client_socket (it->first);
+					            
+					            size_t data_packet_size = m_recv_trans.get_data_packet_size ();
+					            unsigned char* data_packet = new unsigned char[data_packet_size];
+					            m_recv_trans.get_data_packet(data_packet, data_packet_size);
+					            
+					            m_send_trans.clear ();
+					            m_send_trans.put_command (SCIM_TRANS_CMD_REPLY);
+					            m_send_trans.put_data ((uint32) context);
+					            m_send_trans.put_command (cmd);
+					            m_send_trans.put_data_packet (data_packet, data_packet_size);
+					            m_send_trans.write_to_socket (client_socket);
+					            delete data_packet;
+					            data_packet = 0;
+	        				
+		        				SCIM_DEBUG_MAIN (2) << "Forwarded message " << cmd << "to " << it->first << "\n";
+		        				it->second.awaitedTransCommand = -1;
+		        				message_was_forwarded = true;
+		        				break;
+	        				}
+        			}
+        			if(message_was_forwarded) continue;
+        			//TA
+					
                     if (cmd == SCIM_TRANS_CMD_PANEL_REGISTER_INPUT_CONTEXT) {
                         if (m_recv_trans.get_data (uuid)) {
                             SCIM_DEBUG_MAIN (2) << "PanelAgent::register_input_context (" << client_id << "," << "," << context << "," << uuid << ")\n";
@@ -985,7 +1017,11 @@ private:
             SCIM_DEBUG_MAIN (1) << "PanelAgent::PanelController Client\n";
             socket_transaction_start();
             while (m_recv_trans.get_command (cmd)) {
-                if (cmd == SCIM_TRANS_CMD_CONTROLLER_REQUEST_FACTORY_MENU) {    
+                if (cmd == SCIM_TRANS_CMD_CONTROLLER_REQUEST_FACTORY_MENU) {
+                	ClientRepository::iterator it = m_client_repository.find (client_id);
+                	if(it->second.awaitedTransCommand != -1)
+                		it->second.awaitedTransCommand = SCIM_TRANS_CMD_PANEL_SHOW_FACTORY_MENU;
+                	else return;	//if the response to a previous command is outstanding we ignore the current command
                     socket_panelcontroller_request_factory_menu ();
                 }
             }
@@ -996,6 +1032,7 @@ private:
 	void socket_panelcontroller_request_factory_menu	()
 	{
 		SCIM_DEBUG_MAIN (2) << "PanelAgent::socket_panelcontroller_request_factory_menu ()\n";
+		
 		request_factory_menu();
 	}
 	
@@ -1214,9 +1251,7 @@ private:
             info.lang = scim_get_normalized_language (info.lang);
             vec.push_back (info);
         }
-
-        if (vec.size ())
-            m_signal_show_factory_menu (vec);
+        if (vec.size ()) m_signal_show_factory_menu (vec);
     }
 
     void socket_show_preedit_string             (void)
