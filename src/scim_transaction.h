@@ -112,11 +112,6 @@ public:
      * @brief Get the size of this transaction.
      */
     size_t get_size () const;
-    
-    /**
-     * @brief Get the size of the data associated with this transaction.
-     */
-    size_t get_data_packet_size () const;
 
     /**
      * @brief Write the transaction to a socket.
@@ -231,11 +226,6 @@ public:
      * @brief Store another Transaction object into this transaction.
      */
     void put_data (const Transaction &trans);
-    
-    /**
-     * @brief Store a buffer of data consisting of various well formed data types into this transaction.
-     */
-    void put_data_packet (unsigned char *raw, size_t bufsize);
 
     /**
      * @brief Get the type of the data at current read position.
@@ -316,11 +306,6 @@ public:
      * @brief Get a Transaction object from current read position.
      */
     bool get_data (Transaction &trans);
-    
-    /**
-     * @brief Get all the data associated with the current transaction 
-     */
-    bool get_data_packet (unsigned char *raw, size_t bufsize);
 
     /**
      * @brief Skip one data from current read position.
@@ -482,11 +467,6 @@ public:
      * @brief Get a Transaction object from current read position.
      */
     bool get_data (Transaction &trans);
-    
-    /**
-     * @brief Get all the data associated with the current transaction 
-     */
-    bool get_data_packet (unsigned char *raw, size_t bufsize);
 
     /**
      * @brief Skip one data from current read position.

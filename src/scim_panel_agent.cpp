@@ -825,34 +825,10 @@ private:
                 while (m_recv_trans.get_command (cmd)) {
                     SCIM_DEBUG_MAIN (3) << "PanelAgent::cmd = " << cmd << "\n";
 					
-					//TA
-					bool message_was_forwarded = false;
-        			for(ClientRepository::iterator it = m_client_repository.begin ();
-	        	    	it != m_client_repository.end (); ++it){
-	        				if(it->second.awaitedTransCommand == cmd){
-					            Socket client_socket (it->first);
-					            
-					            size_t data_packet_size = m_recv_trans.get_data_packet_size ();
-					            unsigned char* data_packet = new unsigned char[data_packet_size];
-					            m_recv_trans.get_data_packet(data_packet, data_packet_size);
-					            
-					            m_send_trans.clear ();
-					            m_send_trans.put_command (SCIM_TRANS_CMD_REPLY);
-					            m_send_trans.put_data ((uint32) context);
-					            m_send_trans.put_command (cmd);
-					            m_send_trans.put_data_packet (data_packet, data_packet_size);
-					            m_send_trans.write_to_socket (client_socket);
-					            delete data_packet;
-					            data_packet = 0;
-	        				
-		        				SCIM_DEBUG_MAIN (2) << "Forwarded message " << cmd << "to " << it->first << "\n";
-		        				it->second.awaitedTransCommand = -1;
-		        				message_was_forwarded = true;
-		        				break;
-	        				}
-        			}
-        			if(message_was_forwarded) continue;
-        			//TA
+					
+					// Check if another client is registered for this message
+					// If so, forward the message
+					if(forward_message_to_waiting_client(cmd, context)) continue;	//go process the next message
 					
                     if (cmd == SCIM_TRANS_CMD_PANEL_REGISTER_INPUT_CONTEXT) {
                         if (m_recv_trans.get_data (uuid)) {
@@ -1027,6 +1003,130 @@ private:
             }
             socket_transaction_end();
         }
+    }
+    
+    bool forward_message_to_waiting_client(int cmd, int context){
+    	bool message_was_forwarded = false;
+    	for(ClientRepository::iterator it = m_client_repository.begin ();
+	    	it != m_client_repository.end (); ++it){
+	    		SCIM_DEBUG_MAIN (1) << "PanelAgent::Checking if message needs forwarding\n";
+	        if(it->second.awaitedTransCommand == cmd){
+	        	
+    		SCIM_DEBUG_MAIN (1) << "PanelAgent::Message forwarded to client:" << it->first << "\n";
+				Socket client_socket (it->first);
+					            
+				m_send_trans.clear ();
+				m_send_trans.put_command (SCIM_TRANS_CMD_REPLY);
+				m_send_trans.put_data ((uint32) context);
+				m_send_trans.put_command (cmd);
+					            
+				int data_type = m_recv_trans.get_data_type();
+					            
+				while((data_type != SCIM_TRANS_DATA_COMMAND) &&
+					   data_type != SCIM_TRANS_DATA_UNKNOWN){	//while we're still processing data from the same command
+					SCIM_DEBUG_MAIN (1) << "PanelAgent::Forwarding Datatype:" << data_type << "\n";
+					switch(data_type){
+						case SCIM_TRANS_DATA_UINT32:{
+							uint32 buf;
+							m_recv_trans.get_data(buf);
+							m_send_trans.put_data (buf);
+							break;
+						}
+						case SCIM_TRANS_DATA_STRING:{
+			            	String buf;
+							m_recv_trans.get_data(buf);
+							m_send_trans.put_data (buf);
+			            	break;
+			            }
+			            case SCIM_TRANS_DATA_WSTRING:{
+			            	WideString buf;
+							m_recv_trans.get_data(buf);
+							m_send_trans.put_data (buf);
+			            	break;
+			            }
+			            case SCIM_TRANS_DATA_KEYEVENT:
+			            {
+			            	KeyEvent buf;
+							m_recv_trans.get_data(buf);
+							m_send_trans.put_data (buf);
+			            	break;
+			            }
+			            case SCIM_TRANS_DATA_ATTRIBUTE_LIST:
+			            {	
+			            	AttributeList buf;
+							m_recv_trans.get_data(buf);
+							m_send_trans.put_data (buf);
+			            	break;
+			            }
+			            case SCIM_TRANS_DATA_PROPERTY:
+			            {
+			            	Property buf;
+							m_recv_trans.get_data(buf);
+							m_send_trans.put_data (buf);
+			            	break;
+			            }
+			            case SCIM_TRANS_DATA_PROPERTY_LIST:
+			            {
+			                PropertyList buf;
+							m_recv_trans.get_data(buf);
+							m_send_trans.put_data (buf);
+			                break;
+			            }
+			            case SCIM_TRANS_DATA_LOOKUP_TABLE:
+			            {
+			                CommonLookupTable buf;
+							m_recv_trans.get_data(buf);
+							m_send_trans.put_data (buf);
+			                break;
+			            }
+			            case SCIM_TRANS_DATA_VECTOR_UINT32:
+			            {
+			                std::vector <uint32> buf;
+							m_recv_trans.get_data(buf);
+							m_send_trans.put_data (buf);
+			                break;
+			            }
+			            case SCIM_TRANS_DATA_VECTOR_STRING:
+			            {
+			                std::vector <String> buf;
+							m_recv_trans.get_data(buf);
+							m_send_trans.put_data (buf);
+			                break;
+			            }
+			            case SCIM_TRANS_DATA_VECTOR_WSTRING:
+			            {
+			                std::vector <WideString> buf;
+							m_recv_trans.get_data(buf);
+							m_send_trans.put_data (buf);
+			                break;
+			            }
+			            case SCIM_TRANS_DATA_RAW:
+			            {
+			            	char* buf;
+			                size_t bufsize;
+			                m_recv_trans.get_data (&buf, bufsize);
+			                m_recv_trans.put_data (buf, bufsize);
+			                break;
+			            }
+			            case SCIM_TRANS_DATA_TRANSACTION:
+			            {
+			                Transaction buf;
+							m_recv_trans.get_data(buf);
+							m_send_trans.put_data (buf);
+							break;
+			            }
+	            	}
+	            	data_type = m_recv_trans.get_data_type();
+	            }
+	            m_send_trans.write_to_socket (client_socket);
+			
+				SCIM_DEBUG_MAIN (2) << "Forwarded message " << cmd << "to " << it->first << "\n";
+				it->second.awaitedTransCommand = -1;
+				message_was_forwarded = true;
+				break;	//client iteration
+			}
+    	}
+    	return message_was_forwarded;
     }
 	
 	void socket_panelcontroller_request_factory_menu	()

@@ -208,11 +208,6 @@ Transaction::get_size () const
     return m_holder->m_write_pos;
 }
 
-size_t
-Transaction::get_data_packet_size () const{
-	//TODO --TA
-}
-
 bool
 Transaction::write_to_buffer (void *buf, size_t bufsize) const
 {
@@ -528,11 +523,6 @@ Transaction::put_data (const Transaction &trans)
 }
 
 void
-Transaction::put_data_packet (unsigned char *raw, size_t bufsize){
-	//TODO --TA
-}
-
-void
 Transaction::clear ()
 {
     m_holder->m_write_pos = SCIM_TRANS_HEADER_SIZE;
@@ -627,11 +617,6 @@ bool
 Transaction::get_data (Transaction &trans)
 {
     return m_reader->get_data (trans);
-}
-
-bool
-Transaction::get_data_packet (unsigned char *raw, size_t bufsize){
-	return m_reader->get_data_packet (raw, bufsize);
 }
 
 bool
@@ -1286,11 +1271,6 @@ TransactionReader::get_data (Transaction &trans)
         return true;
     }
     return false;
-}
-
-bool
-TransactionReader::get_data_packet (unsigned char *raw, size_t bufsize){
-	//TODO --TA
 }
 
 bool
