@@ -90,7 +90,7 @@ enum ClientType {
 struct ClientInfo {
     uint32       key;
     ClientType   type;
-    int			 awaitedTransCommand;
+    int          awaitedTransCommand;
 };
 
 struct HelperClientStub {
@@ -818,18 +818,13 @@ private:
             return;
  
         if (client_info.type == FRONTEND_CLIENT) {
-        	        	
             if (m_recv_trans.get_data (context)) {
                 SCIM_DEBUG_MAIN (1) << "PanelAgent::FrontEnd Client, context = " << context << "\n";
                 socket_transaction_start();
                 while (m_recv_trans.get_command (cmd)) {
-                    
-					for(int ta=0; ta<10; ++ta){
-						SCIM_DEBUG_MAIN (3) << "PanelAgent::cmd = " << cmd << "\n";						
-					}
-					
-					
-					if (cmd == SCIM_TRANS_CMD_PANEL_REGISTER_INPUT_CONTEXT) {
+                    SCIM_DEBUG_MAIN (3) << "PanelAgent::cmd = " << cmd << "\n";
+
+                    if (cmd == SCIM_TRANS_CMD_PANEL_REGISTER_INPUT_CONTEXT) {
                         if (m_recv_trans.get_data (uuid)) {
                             SCIM_DEBUG_MAIN (2) << "PanelAgent::register_input_context (" << client_id << "," << "," << context << "," << uuid << ")\n";
                             uint32 ctx = get_helper_ic (client_id, context);
@@ -918,7 +913,6 @@ private:
                     else if (cmd == SCIM_TRANS_CMD_UPDATE_SPOT_LOCATION)
                         socket_update_spot_location ();
                     else if (cmd == SCIM_TRANS_CMD_PANEL_UPDATE_FACTORY_INFO)
-                        forward_message_to_waiting_client(cmd, context);
                         socket_update_factory_info ();
                     else if (cmd == SCIM_TRANS_CMD_SHOW_PREEDIT_STRING)
                         socket_show_preedit_string ();
@@ -947,11 +941,7 @@ private:
                     else if (cmd == SCIM_TRANS_CMD_PANEL_SHOW_HELP)
                         socket_show_help ();
                     else if (cmd == SCIM_TRANS_CMD_PANEL_SHOW_FACTORY_MENU)
-                    	// Check if another client is registered for this message
-						// If so, forward the message and don't let the panel show the menu
-						if(!forward_message_to_waiting_client(cmd, context)){
-							socket_show_factory_menu ();
-						}
+                        socket_show_factory_menu ();
                     else if (cmd == SCIM_TRANS_CMD_FOCUS_OUT) {
                         SCIM_DEBUG_MAIN (2) << "PanelAgent::focus_out (" << client_id << "," << "," << context << ")\n";
                         lock ();
@@ -997,10 +987,7 @@ private:
             SCIM_DEBUG_MAIN (1) << "PanelAgent::PanelController Client\n";
             socket_transaction_start();
             while (m_recv_trans.get_command (cmd)) {
-                    
-				for(int ta=0; ta<15; ++ta){
-					SCIM_DEBUG_MAIN (3) << "PanelAgent::cmd = " << cmd << "\n";						
-				}
+				SCIM_DEBUG_MAIN (3) << "PanelAgent::cmd = " << cmd << "\n";
 					
                 if (cmd == SCIM_TRANS_CMD_CONTROLLER_REQUEST_FACTORY_MENU) {
                 	ClientRepository::iterator it = m_client_repository.find (client_id);
@@ -1021,136 +1008,11 @@ private:
             socket_transaction_end();
         }
     }
-    
-    bool forward_message_to_waiting_client(int cmd, int context){
-    	bool message_was_forwarded = false;
-    	for(ClientRepository::iterator it = m_client_repository.begin ();
-	    	it != m_client_repository.end (); ++it){
-	    		SCIM_DEBUG_MAIN (1) << "PanelAgent::Checking if message needs forwarding\n";
-	        if(it->second.awaitedTransCommand == cmd){
-	        	
-    		SCIM_DEBUG_MAIN (1) << "PanelAgent::Message forwarded to client:" << it->first << "\n";
-				Socket client_socket (it->first);
-					            
-				m_send_trans.clear ();
-				m_send_trans.put_command (SCIM_TRANS_CMD_REPLY);
-				m_send_trans.put_data ((uint32) context);
-				m_send_trans.put_command (cmd);
-					            
-				int data_type = m_recv_trans.get_data_type();
-					            
-				while((data_type != SCIM_TRANS_DATA_COMMAND) &&
-					   data_type != SCIM_TRANS_DATA_UNKNOWN){	//while we're still processing data from the same command
-					SCIM_DEBUG_MAIN (1) << "PanelAgent::Forwarding Datatype:" << data_type << "\n";
-					switch(data_type){
-						case SCIM_TRANS_DATA_UINT32:{
-							uint32 buf;
-							m_recv_trans.get_data(buf);
-							m_send_trans.put_data (buf);
-							break;
-						}
-						case SCIM_TRANS_DATA_STRING:{
-			            	String buf;
-							m_recv_trans.get_data(buf);
-							m_send_trans.put_data (buf);
-			            	break;
-			            }
-			            case SCIM_TRANS_DATA_WSTRING:{
-			            	WideString buf;
-							m_recv_trans.get_data(buf);
-							m_send_trans.put_data (buf);
-			            	break;
-			            }
-			            case SCIM_TRANS_DATA_KEYEVENT:
-			            {
-			            	KeyEvent buf;
-							m_recv_trans.get_data(buf);
-							m_send_trans.put_data (buf);
-			            	break;
-			            }
-			            case SCIM_TRANS_DATA_ATTRIBUTE_LIST:
-			            {	
-			            	AttributeList buf;
-							m_recv_trans.get_data(buf);
-							m_send_trans.put_data (buf);
-			            	break;
-			            }
-			            case SCIM_TRANS_DATA_PROPERTY:
-			            {
-			            	Property buf;
-							m_recv_trans.get_data(buf);
-							m_send_trans.put_data (buf);
-			            	break;
-			            }
-			            case SCIM_TRANS_DATA_PROPERTY_LIST:
-			            {
-			                PropertyList buf;
-							m_recv_trans.get_data(buf);
-							m_send_trans.put_data (buf);
-			                break;
-			            }
-			            case SCIM_TRANS_DATA_LOOKUP_TABLE:
-			            {
-			                CommonLookupTable buf;
-							m_recv_trans.get_data(buf);
-							m_send_trans.put_data (buf);
-			                break;
-			            }
-			            case SCIM_TRANS_DATA_VECTOR_UINT32:
-			            {
-			                std::vector <uint32> buf;
-							m_recv_trans.get_data(buf);
-							m_send_trans.put_data (buf);
-			                break;
-			            }
-			            case SCIM_TRANS_DATA_VECTOR_STRING:
-			            {
-			                std::vector <String> buf;
-							m_recv_trans.get_data(buf);
-							m_send_trans.put_data (buf);
-			                break;
-			            }
-			            case SCIM_TRANS_DATA_VECTOR_WSTRING:
-			            {
-			                std::vector <WideString> buf;
-							m_recv_trans.get_data(buf);
-							m_send_trans.put_data (buf);
-			                break;
-			            }
-			            case SCIM_TRANS_DATA_RAW:
-			            {
-			            	char* buf;
-			                size_t bufsize;
-			                m_recv_trans.get_data (&buf, bufsize);
-			                m_recv_trans.put_data (buf, bufsize);
-			                break;
-			            }
-			            case SCIM_TRANS_DATA_TRANSACTION:
-			            {
-			                Transaction buf;
-							m_recv_trans.get_data(buf);
-							m_send_trans.put_data (buf);
-							break;
-			            }
-	            	}
-	            	data_type = m_recv_trans.get_data_type();
-	            }
-	            m_send_trans.write_to_socket (client_socket);
-			
-				SCIM_DEBUG_MAIN (2) << "Forwarded message " << cmd << "to " << it->first << "\n";
-				it->second.awaitedTransCommand = 0;
-				message_was_forwarded = true;
-				break;	//client iteration
-			}
-    	}
-    	return message_was_forwarded;
-    }
 	
 	void socket_panelcontroller_request_factory_menu	()
 	{
 		SCIM_DEBUG_MAIN (2) << "PanelAgent::socket_panelcontroller_request_factory_menu ()\n";
-		
-		request_factory_menu();
+        request_factory_menu();
 	}
 	
 	void socket_panelcontroller_change_factory (){
@@ -1344,7 +1206,6 @@ private:
 
     void socket_update_factory_info             (void)
     {	
-    	
         SCIM_DEBUG_MAIN(4) << "PanelAgent::socket_update_factory_info ()\n";
 
         PanelFactoryInfo info;
@@ -1352,9 +1213,38 @@ private:
             m_recv_trans.get_data (info.lang) && m_recv_trans.get_data (info.icon)) {
             SCIM_DEBUG_MAIN(4) << "New Factory info uuid=" << info.uuid << " name=" << info.name << "\n";
             info.lang = scim_get_normalized_language (info.lang);
+            
             m_signal_update_factory_info (info);
+            inform_waiting_clients_of_factory_update(info);
         }
-    }}
+    }
+    
+    bool inform_waiting_clients_of_factory_update(PanelFactoryInfo info){
+    	bool message_was_forwarded = false;
+		SCIM_DEBUG_MAIN (1) << "PanelAgent::Checking if message needs forwarding\n";
+    	for(ClientRepository::iterator it = m_client_repository.begin ();
+	    	it != m_client_repository.end (); ++it){
+	   		if(it->second.awaitedTransCommand == SCIM_TRANS_CMD_PANEL_UPDATE_FACTORY_INFO){
+	        	int context = 0;
+	        	Socket client_socket (it->first);
+					            
+				m_send_trans.clear ();
+				m_send_trans.put_command (SCIM_TRANS_CMD_REPLY);
+				m_send_trans.put_data ((uint32) context); //this is not being used right now TA
+		    	m_send_trans.put_command (SCIM_TRANS_CMD_PANEL_UPDATE_FACTORY_INFO);
+		        m_send_trans.put_data (info.uuid);
+		        m_send_trans.put_data (info.name);
+		        m_send_trans.put_data (info.lang);
+		        m_send_trans.put_data (info.icon);
+		        m_send_trans.write_to_socket (client_socket);
+			
+				SCIM_DEBUG_MAIN (2) << "Forwarded message " << "SCIM_TRANS_CMD_PANEL_UPDATE_FACTORY_INFO" << "to " << it->first << "\n";
+				it->second.awaitedTransCommand = 0;
+				message_was_forwarded = true;
+				break;	//client iteration
+	        }
+	    }
+    }
 
     void socket_show_help                       (void)
     {
@@ -1377,7 +1267,39 @@ private:
             info.lang = scim_get_normalized_language (info.lang);
             vec.push_back (info);
         }
-        if (vec.size ()) m_signal_show_factory_menu (vec);
+        if (vec.size ()){
+        	if(!inform_waiting_clients_of_factory_menu(vec))        	
+        	m_signal_show_factory_menu (vec);
+        }
+    }
+    
+    bool inform_waiting_clients_of_factory_menu(std::vector <PanelFactoryInfo> menu){
+    	bool message_was_forwarded = false;
+		SCIM_DEBUG_MAIN (1) << "PanelAgent::Checking if message needs forwarding\n";
+    	for(ClientRepository::iterator it = m_client_repository.begin ();
+	    	it != m_client_repository.end (); ++it){
+	   		if(it->second.awaitedTransCommand == SCIM_TRANS_CMD_PANEL_SHOW_FACTORY_MENU){
+	        	int context = 0;
+	        	Socket client_socket (it->first);
+					            
+				m_send_trans.clear ();
+				m_send_trans.put_command (SCIM_TRANS_CMD_REPLY);
+				m_send_trans.put_data ((uint32) context); //this is not being used right now TA
+		        m_send_trans.put_command (SCIM_TRANS_CMD_PANEL_SHOW_FACTORY_MENU);
+	            for (size_t i = 0; i < menu.size (); ++ i) {
+	                m_send_trans.put_data (menu [i].uuid);
+	                m_send_trans.put_data (menu [i].name);
+	                m_send_trans.put_data (menu [i].lang);
+	                m_send_trans.put_data (menu [i].icon);
+	            }
+		        m_send_trans.write_to_socket (client_socket);
+			
+				SCIM_DEBUG_MAIN (2) << "Forwarded message " << "SCIM_TRANS_CMD_PANEL_SHOW_FACTORY_MENU" << "to " << it->first << "\n";
+				it->second.awaitedTransCommand = 0;
+				message_was_forwarded = true;
+				break;	//client iteration
+	        }
+	    }
     }
 
     void socket_show_preedit_string             (void)
