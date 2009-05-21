@@ -563,9 +563,7 @@ const int SCIM_TRANS_CMD_HELPER_MANAGER_RUN_HELPER        = 701;
 
 //Controller Client to Panel
 const int SCIM_TRANS_CMD_CONTROLLER_REQUEST_FACTORY_MENU  = 800;
-
-//Controller Client to Panel
-//const int SCIM_TRANS_CMD_PANEL_REQUEST_HELP               = 820;
+const int SCIM_TRANS_CMD_CONTROLLER_CHANGE_FACTORY		  = 801;
 
 const int SCIM_TRANS_CMD_USER_DEFINED                     = 10000;
 /**
