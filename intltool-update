@@ -554,7 +554,7 @@ sub Console_WriteError_InvalidOption
 
 sub GenerateHeaders
 {
-    my $EXTRACT = "/home/cambell/scim-1.4.7/scim-1.4.7/intltool-extract";
+    my $EXTRACT = "/home/tim/scim-1.4.7/intltool-extract";
     chomp $EXTRACT;
 
     $EXTRACT = $ENV{"INTLTOOL_EXTRACT"} if $ENV{"INTLTOOL_EXTRACT"};

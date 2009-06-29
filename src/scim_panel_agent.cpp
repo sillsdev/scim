@@ -167,6 +167,7 @@ class PanelAgent::PanelAgentImpl
     StartHelperICIndex                  m_start_helper_ic_index;
 
     ClientContextUUIDRepository         m_client_context_uuids;
+    PanelFactoryInfo 					m_defaultFactoryInfo;
 
     HelperManager                       m_helper_manager;
 
@@ -208,7 +209,8 @@ public:
           m_current_screen (0),
           m_socket_timeout (scim_get_default_socket_timeout ()),
           m_current_socket_client (-1), m_current_client_context (0),
-          m_last_socket_client (-1), m_last_client_context (0)
+          m_last_socket_client (-1), m_last_client_context (0),
+          m_defaultFactoryInfo(PanelFactoryInfo (String (""), String (_("Default Keyboard")), String (""), String ("")))
     {
         m_socket_server.signal_connect_accept (slot (this, &PanelAgentImpl::socket_accept_callback));
         m_socket_server.signal_connect_receive (slot (this, &PanelAgentImpl::socket_receive_callback));
@@ -988,25 +990,36 @@ private:
             socket_transaction_start();
             while (m_recv_trans.get_command (cmd)) {
 				SCIM_DEBUG_MAIN (3) << "PanelAgent::cmd = " << cmd << "\n";
+				
+				if(previous_command_is_outstanding_for_client(client_id))
+                		return; //if the response to a previous command is outstanding we ignore the current command 
 					
                 if (cmd == SCIM_TRANS_CMD_CONTROLLER_REQUEST_FACTORY_MENU) {
-                	ClientRepository::iterator it = m_client_repository.find (client_id);
-                	if(it->second.awaitedTransCommand == 0)
-                		it->second.awaitedTransCommand = SCIM_TRANS_CMD_PANEL_SHOW_FACTORY_MENU;
-                	else return;	//if the response to a previous command is outstanding we ignore the current command
+                	register_awaited_command_for_client(client_id, SCIM_TRANS_CMD_PANEL_SHOW_FACTORY_MENU);
                     socket_panelcontroller_request_factory_menu ();
                 }
                 if (cmd == SCIM_TRANS_CMD_CONTROLLER_CHANGE_FACTORY) {
-                	SCIM_DEBUG_MAIN (1) << "PanelAgent::PanelController Client\n";
-                	ClientRepository::iterator it = m_client_repository.find (client_id);
-                	if(it->second.awaitedTransCommand == 0)
-                		it->second.awaitedTransCommand = SCIM_TRANS_CMD_PANEL_UPDATE_FACTORY_INFO;
-                	else return;	//if the response to a previous command is outstanding we ignore the current command
+                	register_awaited_command_for_client(client_id, SCIM_TRANS_CMD_PANEL_UPDATE_FACTORY_INFO);
                     socket_panelcontroller_change_factory ();
                 }
             }
             socket_transaction_end();
         }
+    }
+    
+    bool previous_command_is_outstanding_for_client(int client_id){
+    	ClientRepository::iterator it = m_client_repository.find (client_id);
+		return (it->second.awaitedTransCommand != 0);
+    }
+    
+    void register_awaited_command_for_client(int client_id, int cmd){
+    	ClientRepository::iterator it = m_client_repository.find (client_id);
+		it->second.awaitedTransCommand = cmd;
+    }
+    
+    int expected_command_for_client(int client_id){
+    	ClientRepository::iterator it = m_client_repository.find (client_id);
+		return it->second.awaitedTransCommand;
     }
 	
 	void socket_panelcontroller_request_factory_menu	()
@@ -1175,7 +1188,8 @@ private:
     void socket_turn_off                        (void)
     {
         SCIM_DEBUG_MAIN(4) << "PanelAgent::socket_turn_off ()\n";
-
+		inform_waiting_clients_of_factory_update(m_defaultFactoryInfo);	
+		
         m_signal_turn_off ();
     }
 
@@ -1244,6 +1258,7 @@ private:
 				break;	//client iteration
 	        }
 	    }
+	    return message_was_forwarded;
     }
 
     void socket_show_help                       (void)
@@ -1259,9 +1274,9 @@ private:
     {
         SCIM_DEBUG_MAIN(4) << "PanelAgent::socket_show_factory_menu ()\n";
 
-        PanelFactoryInfo info;
+		PanelFactoryInfo info;
         std::vector <PanelFactoryInfo> vec;
-
+		
         while (m_recv_trans.get_data (info.uuid) && m_recv_trans.get_data (info.name) &&
                m_recv_trans.get_data (info.lang) && m_recv_trans.get_data (info.icon)) {
             info.lang = scim_get_normalized_language (info.lang);
@@ -1269,13 +1284,15 @@ private:
         }
         if (vec.size ()){
         	if(!inform_waiting_clients_of_factory_menu(vec))        	
-        	m_signal_show_factory_menu (vec);
+        		m_signal_show_factory_menu (vec);
         }
     }
     
     bool inform_waiting_clients_of_factory_menu(std::vector <PanelFactoryInfo> menu){
     	bool message_was_forwarded = false;
 		SCIM_DEBUG_MAIN (1) << "PanelAgent::Checking if message needs forwarding\n";
+    	
+		menu.push_back(m_defaultFactoryInfo);
     	for(ClientRepository::iterator it = m_client_repository.begin ();
 	    	it != m_client_repository.end (); ++it){
 	   		if(it->second.awaitedTransCommand == SCIM_TRANS_CMD_PANEL_SHOW_FACTORY_MENU){
@@ -1300,6 +1317,7 @@ private:
 				break;	//client iteration
 	        }
 	    }
+	    return message_was_forwarded;
     }
 
     void socket_show_preedit_string             (void)

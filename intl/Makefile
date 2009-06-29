@@ -48,7 +48,7 @@ AR = ar
 CC = gcc
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 RANLIB = ranlib
-YACC = bison -y -d
+YACC = : -y -d
 YFLAGS = --name-prefix=__gettext
 
 DEFS = -DLOCALEDIR=\"$(localedir)\" -DLOCALE_ALIAS_PATH=\"$(aliaspath)\" \
@@ -58,7 +58,7 @@ DEFS = -DLOCALEDIR=\"$(localedir)\" -DLOCALE_ALIAS_PATH=\"$(aliaspath)\" \
 -Drelocate=libintl_relocate \
 -DDEPENDS_ON_LIBICONV=1 -DHAVE_CONFIG_H
 CPPFLAGS = 
-CFLAGS =  -g
+CFLAGS = -g -O2 -g
 LDFLAGS = 
 LIBS = 
 

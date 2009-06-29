@@ -32,7 +32,7 @@ localedir = $(libdir)/locale
 gnulocaledir = $(datadir)/locale
 gettextsrcdir = $(datadir)/glib-2.0/gettext/po
 subdir = po
-install_sh = /home/cambell/scim-1.4.7/scim-1.4.7/install-sh
+install_sh = /home/tim/scim-1.4.7/install-sh
 mkdir_p = mkdir -p -- .
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 
@@ -50,7 +50,7 @@ MSGMERGE = INTLTOOL_EXTRACT=$(INTLTOOL_EXTRACT) srcdir=$(srcdir) $(INTLTOOL_UPDA
 GENPOT   = INTLTOOL_EXTRACT=$(INTLTOOL_EXTRACT) srcdir=$(srcdir) $(INTLTOOL_UPDATE) --gettext-package $(GETTEXT_PACKAGE) --pot
 
 DEFS = -DHAVE_CONFIG_H
-CFLAGS =  -g
+CFLAGS = -g -O2 -g
 CPPFLAGS = 
 
 INCLUDES = -I.. -I$(top_srcdir)/intl

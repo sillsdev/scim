@@ -111,23 +111,23 @@ DIST_SOURCES = $(aaa_frontend_setup_la_SOURCES) \
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/cambell/scim-1.4.7/scim-1.4.7/missing --run aclocal-1.9
+ACLOCAL = ${SHELL} /home/tim/scim-1.4.7/missing --run aclocal-1.9
 ALLOCA = 
 AMDEP_FALSE = #
 AMDEP_TRUE = 
-AMTAR = ${SHELL} /home/cambell/scim-1.4.7/scim-1.4.7/missing --run tar
+AMTAR = ${SHELL} /home/tim/scim-1.4.7/missing --run tar
 AR = ar
-AUTOCONF = ${SHELL} /home/cambell/scim-1.4.7/scim-1.4.7/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/cambell/scim-1.4.7/scim-1.4.7/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/cambell/scim-1.4.7/scim-1.4.7/missing --run automake-1.9
-AWK = gawk
+AUTOCONF = ${SHELL} /home/tim/scim-1.4.7/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/tim/scim-1.4.7/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/tim/scim-1.4.7/missing --run automake-1.9
+AWK = mawk
 BUILD_INCLUDED_LIBINTL = no
 BUILD_MANUAL_FALSE = 
 BUILD_MANUAL_TRUE = #
 CATOBJEXT = .gmo
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS =  -g
+CFLAGS = -g -O2 -g
 CONVENIENCE_LTDL_FALSE = 
 CONVENIENCE_LTDL_TRUE = #
 CPP = gcc -E
@@ -135,7 +135,7 @@ CPPFLAGS =
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS =  -g
+CXXFLAGS = -g -O2 -g
 CYGPATH_W = echo
 DATADIRNAME = share
 DEFS = -DHAVE_CONFIG_H
@@ -158,8 +158,8 @@ GMSGFMT = /usr/bin/msgfmt
 GREP = /bin/grep
 GTHREAD2_CFLAGS = -pthread -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include  
 GTHREAD2_LIBS = -pthread -lgthread-2.0 -lrt -lglib-2.0  
-GTK2_CFLAGS = -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng12  
-GTK2_LIBS = -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgio-2.0 -lcairo -lfreetype -lz -lfontconfig -lpango-1.0 -lgdk_pixbuf-2.0 -lm -lgobject-2.0 -lgmodule-2.0 -lglib-2.0  
+GTK2_CFLAGS = -D_REENTRANT -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/directfb -I/usr/include/libpng12 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include  
+GTK2_LIBS = -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgio-2.0 -lcairo -lfreetype -lfontconfig -lpango-1.0 -lgdk_pixbuf-2.0 -lm -lgobject-2.0 -lgmodule-2.0 -lglib-2.0  
 GTK_BINARY_VERSION = 2.10.0
 GTK_IM_MODULEDIR = /usr/lib/gtk-2.0/immodules
 GTK_LIBDIR = /usr/lib
@@ -183,7 +183,7 @@ INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = ${SHELL} $(install_sh) -c -s
 INSTOBJEXT = .mo
-INTLBISON = bison
+INTLBISON = :
 INTLLIBS = 
 INTLOBJS = 
 INTLTOOL_CAVES_RULE = %.caves:     %.caves.in     $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; LC_ALL=C $(INTLTOOL_MERGE) -d -u -c $(top_builddir)/po/.intltool-merge-cache $(top_srcdir)/po $< $@
@@ -225,7 +225,7 @@ LN_S = ln -s
 LTLIBICONV = 
 LTLIBINTL = 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/cambell/scim-1.4.7/scim-1.4.7/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/tim/scim-1.4.7/missing --run makeinfo
 MKINSTALLDIRS = $(top_builddir)/./mkinstalldirs
 MSGFMT = /usr/bin/msgfmt
 MSGMERGE = /usr/bin/msgmerge
@@ -349,7 +349,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = /home/cambell/scim-1.4.7/scim-1.4.7/install-sh
+install_sh = /home/tim/scim-1.4.7/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -394,39 +394,39 @@ setupmodule_LTLIBRARIES = $(CONFIG_FRONTEND_SETUP_MODULE) \
 			   $(CONFIG_PANEL_GTK_SETUP_MODULE)
 
 aaa_frontend_setup_la_SOURCES = scim_frontend_setup.cpp
-aaa_frontend_setup_la_CFLAGS = -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng12  
-aaa_frontend_setup_la_CXXFLAGS = -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng12  
+aaa_frontend_setup_la_CFLAGS = -D_REENTRANT -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/directfb -I/usr/include/libpng12 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include  
+aaa_frontend_setup_la_CXXFLAGS = -D_REENTRANT -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/directfb -I/usr/include/libpng12 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include  
 aaa_frontend_setup_la_LDFLAGS = -avoid-version \
 		    	     	  -rpath $(setupmoduledir) \
 		    		  -module \
     				   \
-		    		  -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgio-2.0 -lcairo -lfreetype -lz -lfontconfig -lpango-1.0 -lgdk_pixbuf-2.0 -lm -lgobject-2.0 -lgmodule-2.0 -lglib-2.0   \
+		    		  -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgio-2.0 -lcairo -lfreetype -lfontconfig -lpango-1.0 -lgdk_pixbuf-2.0 -lm -lgobject-2.0 -lgmodule-2.0 -lglib-2.0   \
     				  
 
 aaa_frontend_setup_la_LIBADD = $(top_builddir)/src/libscim-1.0.la \
 				$(top_builddir)/utils/libscim-gtkutils-1.0.la
 
 aaa_imengine_setup_la_SOURCES = scim_imengine_setup.cpp
-aaa_imengine_setup_la_CFLAGS = -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng12  
-aaa_imengine_setup_la_CXXFLAGS = -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng12  
+aaa_imengine_setup_la_CFLAGS = -D_REENTRANT -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/directfb -I/usr/include/libpng12 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include  
+aaa_imengine_setup_la_CXXFLAGS = -D_REENTRANT -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/directfb -I/usr/include/libpng12 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include  
 aaa_imengine_setup_la_LDFLAGS = -avoid-version \
 				-rpath $(setupmoduledir) \
 				-module \
 				 \
-				-lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgio-2.0 -lcairo -lfreetype -lz -lfontconfig -lpango-1.0 -lgdk_pixbuf-2.0 -lm -lgobject-2.0 -lgmodule-2.0 -lglib-2.0   \
+				-lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgio-2.0 -lcairo -lfreetype -lfontconfig -lpango-1.0 -lgdk_pixbuf-2.0 -lm -lgobject-2.0 -lgmodule-2.0 -lglib-2.0   \
 				
 
 aaa_imengine_setup_la_LIBADD = $(top_builddir)/src/libscim-1.0.la \
 				$(top_builddir)/utils/libscim-gtkutils-1.0.la
 
 panel_gtk_setup_la_SOURCES = scim_panel_gtk_setup.cpp
-panel_gtk_setup_la_CFLAGS = -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng12  
-panel_gtk_setup_la_CXXFLAGS = -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng12  
+panel_gtk_setup_la_CFLAGS = -D_REENTRANT -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/directfb -I/usr/include/libpng12 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include  
+panel_gtk_setup_la_CXXFLAGS = -D_REENTRANT -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/directfb -I/usr/include/libpng12 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include  
 panel_gtk_setup_la_LDFLAGS = -avoid-version \
 			     	 -rpath $(setupmoduledir) \
 				 -module \
 				  \
-				 -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgio-2.0 -lcairo -lfreetype -lz -lfontconfig -lpango-1.0 -lgdk_pixbuf-2.0 -lm -lgobject-2.0 -lgmodule-2.0 -lglib-2.0   \
+				 -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgio-2.0 -lcairo -lfreetype -lfontconfig -lpango-1.0 -lgdk_pixbuf-2.0 -lm -lgobject-2.0 -lgmodule-2.0 -lglib-2.0   \
 				 
 
 panel_gtk_setup_la_LIBADD = $(top_builddir)/src/libscim-1.0.la
