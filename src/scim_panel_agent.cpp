@@ -167,6 +167,8 @@ class PanelAgent::PanelAgentImpl
     StartHelperICIndex                  m_start_helper_ic_index;
 
     ClientContextUUIDRepository         m_client_context_uuids;
+    
+    PanelFactoryInfo 					m_currentFactoryInfo;
     PanelFactoryInfo 					m_defaultFactoryInfo;
 
     HelperManager                       m_helper_manager;
@@ -210,7 +212,8 @@ public:
           m_socket_timeout (scim_get_default_socket_timeout ()),
           m_current_socket_client (-1), m_current_client_context (0),
           m_last_socket_client (-1), m_last_client_context (0),
-          m_defaultFactoryInfo(PanelFactoryInfo (String (""), String (_("Default Keyboard")), String (""), String ("")))
+          m_defaultFactoryInfo (PanelFactoryInfo (String (""), String (_("Default Keyboard")), String (""), String (""))),
+          m_currentFactoryInfo (PanelFactoryInfo (String (""), String (_("Default Keyboard")), String (""), String ("")))
     {
         m_socket_server.signal_connect_accept (slot (this, &PanelAgentImpl::socket_accept_callback));
         m_socket_server.signal_connect_receive (slot (this, &PanelAgentImpl::socket_receive_callback));
@@ -1002,6 +1005,10 @@ private:
                 	register_awaited_command_for_client(client_id, SCIM_TRANS_CMD_PANEL_UPDATE_FACTORY_INFO);
                     socket_panelcontroller_change_factory ();
                 }
+                if (cmd == SCIM_TRANS_CMD_CONTROLLER_GET_CURRENT_FACTORY) {
+                	register_awaited_command_for_client(client_id, SCIM_TRANS_CMD_PANEL_RETURN_CURRENT_FACTORY_INFO);
+                    socket_panelcontroller_get_current_factory (client_id);
+                }
             }
             socket_transaction_end();
         }
@@ -1022,17 +1029,24 @@ private:
 		return it->second.awaitedTransCommand;
     }
 	
-	void socket_panelcontroller_request_factory_menu	()
+	void socket_panelcontroller_request_factory_menu()
 	{
 		SCIM_DEBUG_MAIN (2) << "PanelAgent::socket_panelcontroller_request_factory_menu ()\n";
         request_factory_menu();
 	}
 	
-	void socket_panelcontroller_change_factory (){
+	void socket_panelcontroller_change_factory ()
+	{
 		String requested_uuid;
 		m_recv_trans.get_data(requested_uuid);
 		SCIM_DEBUG_MAIN (2) << "PanelAgent::socket_panelcontroller_change_factory ()" << requested_uuid << "\n";
 		change_factory(requested_uuid);
+	}
+	
+	void socket_panelcontroller_get_current_factory	(int client_id)
+	{
+		SCIM_DEBUG_MAIN (2) << "PanelAgent::socket_panelcontroller_get_current_factory ()\n";
+		inform_waiting_client_of_current_factory(client_id);
 	}
 	
     void socket_exception_callback              (SocketServer   *server,
@@ -1227,7 +1241,7 @@ private:
             m_recv_trans.get_data (info.lang) && m_recv_trans.get_data (info.icon)) {
             SCIM_DEBUG_MAIN(4) << "New Factory info uuid=" << info.uuid << " name=" << info.name << "\n";
             info.lang = scim_get_normalized_language (info.lang);
-            
+            m_currentFactoryInfo = info;            
             m_signal_update_factory_info (info);
             inform_waiting_clients_of_factory_update(info);
         }
@@ -1259,6 +1273,24 @@ private:
 	        }
 	    }
 	    return message_was_forwarded;
+    }
+    
+    void inform_waiting_client_of_current_factory(int client_id){
+    	SCIM_DEBUG_MAIN (1) << "PanelAgent::Checking if message needs forwarding\n";
+    	int context = 0;
+    	Socket client_socket (client_id);
+    	
+    	m_send_trans.clear ();
+		m_send_trans.put_command (SCIM_TRANS_CMD_REPLY);
+		m_send_trans.put_data ((uint32) context); //this is not being used right now TA
+    	m_send_trans.put_command (SCIM_TRANS_CMD_PANEL_RETURN_CURRENT_FACTORY_INFO);
+        m_send_trans.put_data (m_currentFactoryInfo.uuid);
+        m_send_trans.put_data (m_currentFactoryInfo.name);
+        m_send_trans.put_data (m_currentFactoryInfo.lang);
+        m_send_trans.put_data (m_currentFactoryInfo.icon);
+        m_send_trans.write_to_socket (client_socket);
+        m_client_repository[client_id].awaitedTransCommand = 0;
+        SCIM_DEBUG_MAIN (2) << "Forwarded message " << "SCIM_TRANS_CMD_PANEL_RETURN_CURRENT_FACTORY_INFO\n";
     }
 
     void socket_show_help                       (void)
