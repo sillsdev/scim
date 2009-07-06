@@ -34,6 +34,8 @@
 #define Uses_SCIM_SOCKET
 #define Uses_SCIM_EVENT
 
+#define SCIM_KEYBOARD_ICON_FILE            (SCIM_ICONDIR "/keyboard.png")
+
 #include "scim_private.h"
 #include "scim.h"
 #include "scim_stl_map.h"
@@ -212,8 +214,8 @@ public:
           m_socket_timeout (scim_get_default_socket_timeout ()),
           m_current_socket_client (-1), m_current_client_context (0),
           m_last_socket_client (-1), m_last_client_context (0),
-          m_defaultFactoryInfo (PanelFactoryInfo (String (""), String (_("Default Keyboard")), String (""), String (""))),
-          m_currentFactoryInfo (PanelFactoryInfo (String (""), String (_("Default Keyboard")), String (""), String ("")))
+          m_defaultFactoryInfo (PanelFactoryInfo (String (""), String (_("English/Keyboard")), String ("C"), String (SCIM_KEYBOARD_ICON_FILE))),
+          m_currentFactoryInfo (PanelFactoryInfo (String (""), String (_("English/Keyboard")), String ("C"), String (SCIM_KEYBOARD_ICON_FILE)))
     {
         m_socket_server.signal_connect_accept (slot (this, &PanelAgentImpl::socket_accept_callback));
         m_socket_server.signal_connect_receive (slot (this, &PanelAgentImpl::socket_receive_callback));
