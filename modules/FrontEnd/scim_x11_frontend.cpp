@@ -978,6 +978,7 @@ X11FrontEnd::ims_set_ic_focus_handler (XIMS ims, IMChangeFocusStruct *call_data)
     if (ic->xims_on) {
         start_ic (ic);
     } else {
+    	panel_req_update_factory_info (ic);
         m_panel_client.turn_off (ic->icid);
     }
 
