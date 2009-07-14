@@ -1204,7 +1204,7 @@ private:
     void socket_turn_off                        (void)
     {
         SCIM_DEBUG_MAIN(4) << "PanelAgent::socket_turn_off ()\n";
-		inform_waiting_clients_of_factory_update(m_defaultFactoryInfo);	
+		//inform_waiting_clients_of_factory_update(m_defaultFactoryInfo);	
 		
         m_signal_turn_off ();
     }
