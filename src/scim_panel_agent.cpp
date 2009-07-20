@@ -1255,12 +1255,14 @@ private:
     	for(ClientRepository::iterator it = m_client_repository.begin ();
 	    	it != m_client_repository.end (); ++it){
 	   		if(it->second.awaitedTransCommand == SCIM_TRANS_CMD_PANEL_UPDATE_FACTORY_INFO){
-	        	int context = 0;
+	        	uint32 context;
 	        	Socket client_socket (it->first);
+					        
+				get_focused_context (client, context);
 					            
 				m_send_trans.clear ();
 				m_send_trans.put_command (SCIM_TRANS_CMD_REPLY);
-				m_send_trans.put_data ((uint32) context); //this is not being used right now TA
+				m_send_trans.put_data ((uint32) context);
 		    	m_send_trans.put_command (SCIM_TRANS_CMD_PANEL_UPDATE_FACTORY_INFO);
 		        m_send_trans.put_data (info.uuid);
 		        m_send_trans.put_data (info.name);
@@ -1279,12 +1281,14 @@ private:
     
     void inform_waiting_client_of_current_factory(int client_id){
     	SCIM_DEBUG_MAIN (1) << "PanelAgent::Checking if message needs forwarding\n";
-    	int context = 0;
+    	uint32 context;
     	Socket client_socket (client_id);
+    	
+    	get_focused_context (client, context);
     	
     	m_send_trans.clear ();
 		m_send_trans.put_command (SCIM_TRANS_CMD_REPLY);
-		m_send_trans.put_data ((uint32) context); //this is not being used right now TA
+		m_send_trans.put_data ((uint32) context);
     	m_send_trans.put_command (SCIM_TRANS_CMD_PANEL_RETURN_CURRENT_FACTORY_INFO);
         m_send_trans.put_data (m_currentFactoryInfo.uuid);
         m_send_trans.put_data (m_currentFactoryInfo.name);
@@ -1330,12 +1334,14 @@ private:
     	for(ClientRepository::iterator it = m_client_repository.begin ();
 	    	it != m_client_repository.end (); ++it){
 	   		if(it->second.awaitedTransCommand == SCIM_TRANS_CMD_PANEL_SHOW_FACTORY_MENU){
-	        	int context = 0;
+	        	uint32 context;
 	        	Socket client_socket (it->first);
+					       
+				get_focused_context (client, context);
 					            
 				m_send_trans.clear ();
 				m_send_trans.put_command (SCIM_TRANS_CMD_REPLY);
-				m_send_trans.put_data ((uint32) context); //this is not being used right now TA
+				m_send_trans.put_data ((uint32) context);
 		        m_send_trans.put_command (SCIM_TRANS_CMD_PANEL_SHOW_FACTORY_MENU);
 	            for (size_t i = 0; i < menu.size (); ++ i) {
 	                m_send_trans.put_data (menu [i].uuid);
