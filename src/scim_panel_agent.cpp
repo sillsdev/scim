@@ -1011,6 +1011,10 @@ private:
                 	register_awaited_command_for_client(client_id, SCIM_TRANS_CMD_PANEL_RETURN_CURRENT_FACTORY_INFO);
                     socket_panelcontroller_get_current_factory (client_id);
                 }
+                if (cmd == SCIM_TRANS_CMD_CONTROLLER_GET_CURRENT_CONTEXT) {
+					register_awaited_command_for_client(client_id, SCIM_TRANS_CMD_PANEL_RETURN_CURRENT_CONTEXT);
+                    socket_panelcontroller_get_current_frontend_client_and_context (client_id);
+                }
             }
             socket_transaction_end();
         }
@@ -1029,6 +1033,12 @@ private:
     int expected_command_for_client(int client_id){
     	ClientRepository::iterator it = m_client_repository.find (client_id);
 		return it->second.awaitedTransCommand;
+    }
+    
+    void socket_panelcontroller_get_current_frontend_client_and_context(int client_id)
+    {
+    	SCIM_DEBUG_MAIN (2) << "PanelAgent::socket_panelcontroller_get_current_frontend_client_and_context ()\n";
+        inform_waiting_client_of_current_context(client_id);
     }
 	
 	void socket_panelcontroller_request_factory_menu()
@@ -1255,14 +1265,12 @@ private:
     	for(ClientRepository::iterator it = m_client_repository.begin ();
 	    	it != m_client_repository.end (); ++it){
 	   		if(it->second.awaitedTransCommand == SCIM_TRANS_CMD_PANEL_UPDATE_FACTORY_INFO){
-	        	uint32 context;
+	        	uint32 context = m_current_client_context;
 	        	Socket client_socket (it->first);
-					        
-				get_focused_context (client, context);
 					            
 				m_send_trans.clear ();
 				m_send_trans.put_command (SCIM_TRANS_CMD_REPLY);
-				m_send_trans.put_data ((uint32) context);
+				m_send_trans.put_data ((uint32) context);	//this is the REAL context. i.e. it is 0 when the desktop is focused
 		    	m_send_trans.put_command (SCIM_TRANS_CMD_PANEL_UPDATE_FACTORY_INFO);
 		        m_send_trans.put_data (info.uuid);
 		        m_send_trans.put_data (info.name);
@@ -1279,16 +1287,30 @@ private:
 	    return message_was_forwarded;
     }
     
-    void inform_waiting_client_of_current_factory(int client_id){
+    void inform_waiting_client_of_current_context(int client_id){
     	SCIM_DEBUG_MAIN (1) << "PanelAgent::Checking if message needs forwarding\n";
-    	uint32 context;
+    	uint32 context = m_current_client_context;
     	Socket client_socket (client_id);
-    	
-    	get_focused_context (client, context);
     	
     	m_send_trans.clear ();
 		m_send_trans.put_command (SCIM_TRANS_CMD_REPLY);
-		m_send_trans.put_data ((uint32) context);
+		m_send_trans.put_data ((uint32) context);	//this is the REAL context. i.e. it is 0 when the desktop is focused
+    	m_send_trans.put_command (SCIM_TRANS_CMD_PANEL_RETURN_CURRENT_CONTEXT);
+		m_send_trans.put_data ((uint32) m_current_socket_client);  //this is the REAL client. i.e. it is -1 when the desktop is focused
+		m_send_trans.put_data ((uint32) m_current_client_context); //this is the REAL context. i.e. it is 0 when the desktop is focused
+        m_send_trans.write_to_socket (client_socket);
+        m_client_repository[client_id].awaitedTransCommand = 0;
+        SCIM_DEBUG_MAIN (2) << "Forwarded message " << "SCIM_TRANS_CMD_PANEL_RETURN_CURRENT_CONTEXT\n";
+    }
+    
+    void inform_waiting_client_of_current_factory(int client_id){
+    	SCIM_DEBUG_MAIN (1) << "PanelAgent::Checking if message needs forwarding\n";
+    	uint32 context = m_current_client_context;
+    	Socket client_socket (client_id);
+    	
+    	m_send_trans.clear ();
+		m_send_trans.put_command (SCIM_TRANS_CMD_REPLY);
+		m_send_trans.put_data ((uint32) context);	//this is the REAL context. i.e. it is 0 when the desktop is focused
     	m_send_trans.put_command (SCIM_TRANS_CMD_PANEL_RETURN_CURRENT_FACTORY_INFO);
         m_send_trans.put_data (m_currentFactoryInfo.uuid);
         m_send_trans.put_data (m_currentFactoryInfo.name);
@@ -1334,14 +1356,12 @@ private:
     	for(ClientRepository::iterator it = m_client_repository.begin ();
 	    	it != m_client_repository.end (); ++it){
 	   		if(it->second.awaitedTransCommand == SCIM_TRANS_CMD_PANEL_SHOW_FACTORY_MENU){
-	        	uint32 context;
+	        	uint32 context = m_current_client_context;
 	        	Socket client_socket (it->first);
-					       
-				get_focused_context (client, context);
 					            
 				m_send_trans.clear ();
 				m_send_trans.put_command (SCIM_TRANS_CMD_REPLY);
-				m_send_trans.put_data ((uint32) context);
+				m_send_trans.put_data ((uint32) context);	//this is the REAL context. i.e. it is 0 when the desktop is focused
 		        m_send_trans.put_command (SCIM_TRANS_CMD_PANEL_SHOW_FACTORY_MENU);
 	            for (size_t i = 0; i < menu.size (); ++ i) {
 	                m_send_trans.put_data (menu [i].uuid);
