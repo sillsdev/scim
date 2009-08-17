@@ -1,0 +1,32 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 81_added_panelcontroller_functionality.dpatch by  <tim@tim-VBox>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: The panel agent now provides a way for programs to request IM switches 
+## DP: via socket communication.
+
+@DPATCH@
+
+diff -r 9f8b70ab2429 modules/FrontEnd/scim_x11_frontend.cpp
+--- a/modules/FrontEnd/scim_x11_frontend.cpp	Thu Apr 30 13:21:06 2009 +0700
++++ b/modules/FrontEnd/scim_x11_frontend.cpp	Mon Aug 17 14:29:59 2009 +0700
+@@ -978,6 +978,7 @@
+     if (ic->xims_on) {
+         start_ic (ic);
+     } else {
++    	panel_req_update_factory_info (ic);
+         m_panel_client.turn_off (ic->icid);
+     }
+ 
+@@ -1800,7 +1801,10 @@
+         if (uuid.length () == 0 && ic->xims_on) {
+             SCIM_DEBUG_FRONTEND (2) << "panel_slot_change_factory : turn off.\n";
+             ims_turn_off_ic (ic);
+-        } else if (uuid.length ()) {
++        }else if(uuid.length () == 0 && (ic->xims_on == false)){
++    		panel_req_update_factory_info (ic);
++        	m_panel_client.turn_off (ic->icid);        	
++        }else if (uuid.length ()) {
+             String encoding = scim_get_locale_encoding (ic->locale);
+             String language = scim_get_locale_language (ic->locale);
+             if (validate_factory (uuid, encoding)) {
