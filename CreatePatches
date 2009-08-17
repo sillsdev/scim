@@ -2,7 +2,7 @@ hg diff -r 0 modules/FrontEnd/scim_x11_frontend.cpp > panel_updated_more_consist
 hg diff -r 0 src/scim_panel_agent.cpp src/scim_trans_commands.h > add_panelcontroller_functionality.patch
 
 cat panel_updated_more_consistently.patch | dpatch patch-template -p "80_panel_updated_more_consistently" "X11 FrontEnd now reports factory changes more consistently to the panel." > debian/patches/80_panel_updated_more_consistently.dpatch
-cat panel_updated_more_consistently.patch | dpatch patch-template -p "81_added_panelcontroller_functionality" "The panel agent now provides a way for programs to request IM switches via socket communication." > debian/patches/81_add_panelcontroller_functionality.dpatch
+cat add_panelcontroller_functionality.patch | dpatch patch-template -p "81_added_panelcontroller_functionality" "The panel agent now provides a way for programs to request IM switches via socket communication." > debian/patches/81_add_panelcontroller_functionality.dpatch
 
 rm panel_updated_more_consistently.patch
 rm add_panelcontroller_functionality.patch
