@@ -9,7 +9,7 @@
 
 diff -r 9f8b70ab2429 src/scim_panel_agent.cpp
 --- a/src/scim_panel_agent.cpp	Thu Apr 30 13:21:06 2009 +0700
-+++ b/src/scim_panel_agent.cpp	Mon Aug 17 14:58:22 2009 +0700
++++ b/src/scim_panel_agent.cpp	Thu Aug 20 15:45:23 2009 +0700
 @@ -34,6 +34,8 @@
  #define Uses_SCIM_SOCKET
  #define Uses_SCIM_EVENT
@@ -310,7 +310,7 @@ diff -r 9f8b70ab2429 src/scim_panel_agent.cpp
      void socket_show_preedit_string             (void)
 diff -r 9f8b70ab2429 src/scim_trans_commands.h
 --- a/src/scim_trans_commands.h	Thu Apr 30 13:21:06 2009 +0700
-+++ b/src/scim_trans_commands.h	Mon Aug 17 14:58:22 2009 +0700
++++ b/src/scim_trans_commands.h	Thu Aug 20 15:45:23 2009 +0700
 @@ -561,6 +561,16 @@
  const int SCIM_TRANS_CMD_HELPER_MANAGER_GET_HELPER_LIST   = 700;
  const int SCIM_TRANS_CMD_HELPER_MANAGER_RUN_HELPER        = 701;
