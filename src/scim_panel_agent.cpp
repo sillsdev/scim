@@ -901,6 +901,9 @@ private:
                         socket_stop_helper (client_id, context, uuid);
                         continue;
                     }
+					
+                   if (cmd == SCIM_TRANS_CMD_PANEL_SHOW_FACTORY_MENU)
+                        socket_show_factory_menu ();
  
                     // If it's not focused, just continue.
                     if ((!current && !last) || (last && m_current_socket_client >= 0)) {
@@ -947,8 +950,6 @@ private:
                         socket_update_property ();
                     else if (cmd == SCIM_TRANS_CMD_PANEL_SHOW_HELP)
                         socket_show_help ();
-                    else if (cmd == SCIM_TRANS_CMD_PANEL_SHOW_FACTORY_MENU)
-                        socket_show_factory_menu ();
                     else if (cmd == SCIM_TRANS_CMD_FOCUS_OUT) {
                         SCIM_DEBUG_MAIN (2) << "PanelAgent::focus_out (" << client_id << "," << "," << context << ")\n";
                         lock ();
